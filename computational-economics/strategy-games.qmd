@@ -1,0 +1,184 @@
+---
+title: Economics and Computation
+---
+
+# Topics to Review
+
+- Pure-Strategy Nash Equilibrium (PSNE)
+  - Local Minimum
+- Brute-Force Search
+- Strict Dominance
+  - Reducing the game by finding bounds
+  - Strategy A dominates the strategy B if always A > B
+  - Check if can reduce dominant strategies and there's a Nash Eq
+- Weak Dominance
+  - Strategy A weakly dominates strategy B if A > B most of the time
+
+# Algorithms
+
+- Iterated Elimination of Dominated Strategies
+  - Goal: compute one PSNE
+
+``
+# s_j = strategy for player j
+while there exists a dominated strategy s_j:
+  remove s_j
+# brute-force must return PSNE of original game
+perform brute-force search on reduced game
+``
+
+# Example
+
+  | L     M     R    Try row player
+------------------------------------
+U | 1,0   1,2   0,1  U = (1, 1, 0)
+D | 0,3   0,1   2,0  D = (0, 0, 2)
+  | =     =     =
+  | (     (     (
+  | 0,    2,    1,  Strategy R can be removed
+  | 3     1,    0,
+  | )     )     )
+
+Next iteration:
+
+  | L     M     Try row
+------------------------
+U | 1,0   1,2   U = (1, 1)
+D | 0,3   0,1   D = (0, 0)   Strateegy D can be removed
+
+Next iteration:
+
+    L     M
+--------------
+U | 1,0   1,2
+  | =     =
+  | 0     2        Strategy L can be removed
+
+Next iteration:
+
+    M
+----------
+U | 1,2
+
+Return (U, M)
+
+# Theorem
+
+When computing all PSNE, we can iteratively
+remove all strictly dominated strategies
+
+# Why
+
+For PSNE games, iteratively removing strictly dominated strategies is a waste
+of computation as brute-force search can easily solve this. However, for mixed
+strategy Nash equilibrium games, this method is a necessity.
+
+# Mixed Strategy Nash Equilibrium
+
+Probabilistic
+
+# Normal-Form Games
+
+Games where players allowed to play non-deterministic strategies (lotteries)
+- For players 1, 2, ..., n,
+- FOR ALL <= n, define S_j to be the set of pure (atomic) strategies
+  - Lot(S_j) = all probability distributions over S_j
+    Ex: R @ (1/3) + P @ (1/3) + S @ (1/3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Represents a probability distribution over S_j, where R, P, S are r.v.s.
+  - Outcome: Lot(S_1 * ... * S_n)
+    Suppose outcome is L = (L_1, L_2, ..., L_n)
+  - FOR ALL pure s = (s_1, ... s_n) in S_1 * ... * S_n)
+    - L(s) = Pr(s) = L_1(s_1) * L_2(s_2) * ... * L_n(s_n)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     product distribution
+  - utilities, expected utilities
+
+# Example
+
+Suppose a zero-sum game:
+
+  | H      T
+----------------
+H | -1,1   1,-1
+T | 1,-1   -1,1
+
+L = (L_{row}, L_{col}) where L_{row} = (3/4)H + (1/4)T
+                             L_{col} = (1/3)H + (2/3)T
+
+L is a (product) distribution over {HH, HT, TH, TT}.
+
+     | HH           HT           TH            TT
+----------------------------------------------------------
+Pr_L | (3/4)(1/3)   (3/4)(2/3)   (1/4)(1/3)    (1/4)(2/3)
+     | (1/4)        (1/2)        (1/12)        (1/6)
+
+# Comparing Different Lotteries
+
+While there is no one optimal answer, there is one popular theory.
+
+Q1. Lottery 1: P(x = 0) = 1/2, P(x = 30) = 1/2
+    Lottery 2: P(x = 10) = 1
+
+Q2. Lottery 3: P(x = 0) = 1/2, P(x = 30000000) = 1/2
+    Lottery 4: P(x = 5000000) = 1
+
+While more people choose lottery 1 over lottery 2, in question 2
+lottery 4 over lottery 3. Why?
+
+Expected utility theory. A model of preferences over lotteries. Given m atomic
+outcomes O = {o_1, ..., o_m}, a utility function u: O -> R will return the
+expected utility
+
+u(L) = Σ(L(o) * u(o))
+      o∈O
+
+Prediction. For any pair of lotteries (L_1, L_2), utility theory predicts
+L_1 > L_2 (preferred to) if and only if u(L_1) > u(L_2)
+
+# Average Population Utility Preference
+
+Utility
+|              ---------------
+|        -----/
+|    ---/
+|  -/
+| /
+|/
+|
+|
+|
+------------------------------ Outcome in terms of money
+
+People prefer less uncertainty than more certainty (risk-adverseness).
+
+# Explaining Q1, Q2 Results
+
+Define u: utility  1  3  10  100  150
+                   0  5  30   5M  30M
+
+L_1 vs. L_2
+u(L_1) = (1/2)U(0) + (1/2)U(5) = (1/2)(1) + (1/2)(10) = 5.5
+u(L_2) = (1)U(5) = 3
+
+u(L_3) = (1/2)U(0) + (1/2)U(30M) = 75.5
+u(L_4) = (1)U(5M) = 100
+
+---
+
+Rock Paper Scissors
+
+                | Reward
+-------------------------
+Rock, Scissors  | 1
+Rock, Paper     | 0
+Paper, Rock     | 1
+Paper, Scissors | 0
+Scissors, Paper | 1
+Scissors, Rock  | 0
+
+      -- rock
+     /
+root --- paper
+     \
+      -- scissors
